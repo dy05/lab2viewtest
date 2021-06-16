@@ -11,31 +11,21 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Notification;
 
-class SendNotification implements ShouldQueue
+class DeleteAccount implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    private mixed $users;
     private User $user;
-    /**
-     * @var false
-     */
-    private bool $deleting;
 
     /**
      * Create a new job instance.
      *
      * @param User $user
-     * @param mixed $users
-     * @param bool $deleting
      */
-    public function __construct(User $user, mixed $users, bool $deleting = false)
+    public function __construct(User $user)
     {
-        $this->users = $users;
         $this->user = $user;
-        $this->deleting = $deleting;
     }
 
     /**
@@ -45,13 +35,6 @@ class SendNotification implements ShouldQueue
      */
     public function handle()
     {
-        if (! $this->deleting) {
-            $this->user->notify(new SendMessage($this->user));
-        }
-
-        Notification::send(
-            $this->users,
-            new AlertMessage($this->user, $this->deleting ? $this->user->name . ' vient d\'etre supprime' : null)
-        );
+        $this->delete();
     }
 }

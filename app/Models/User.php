@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Jobs\DeleteAccount;
+use App\Jobs\SendNotification;
+use App\Repositories\UserRepository;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\BroadcastsEvents;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -62,7 +65,11 @@ class User extends Authenticatable
         parent::boot();
 
         self::created(function ($user) {
-            Auth::id();
+            DeleteAccount::dispatch($user)->delay(now()->addMinute(10));
+        });
+
+        self::deleted(function ($user) {
+            SendNotification::dispatch($user, UserRepository::getUsers());
         });
     }
 
