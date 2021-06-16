@@ -42,4 +42,16 @@ class NewMember implements ShouldBroadcast
     {
         return new PrivateChannel('connected_users');
     }
+
+    public function broadcastAs()
+    {
+        return 'app.new_member';
+    }
+
+    public function broadcastWith()
+    {
+        return [
+            'message' => 'Ok Ok ' . $this->authUser->name
+        ];
+    }
 }

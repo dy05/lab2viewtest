@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import Echo from "laravel-echo";
+
 export default {
     name: "App",
     async mounted() {
@@ -32,7 +34,17 @@ export default {
         if (user) {
             this.$store.commit('setUser', {user})
         }
-        console.log(this.$store.getters.authUser)
+
+
+        new Echo({
+            broadcaster: 'socket.io',
+            host: window.location.hostname + ':6001'
+        }).private('connected_users')
+        .listen('.app.new_member', function (e) {
+            debugger
+            console.log(e)
+        })
     }
 }
+
 </script>

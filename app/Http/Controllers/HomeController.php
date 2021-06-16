@@ -36,10 +36,19 @@ class HomeController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'phone' => 'nullable|numeric',
+        ]);
         $user = (new User($request->all()));
+//        broadcast(new NewMember($user, $request->user()));
+        broadcast(new NewMember($request->user(), $request->user()));
+        return response()->json($user);
+        die();
         if ($user->save()) {
-            broadcast(new NewMember($user, $request->user()));
 //            Artisan::call();
+            return response()->json($user);
         }
     }
 }

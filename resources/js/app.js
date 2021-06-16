@@ -2,10 +2,9 @@ import { createApp } from 'vue'
 import { createStore } from 'vuex'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import App from "./components/App"
+import CreateUser from "./components/CreateUser";
 
 require('./bootstrap')
-
-const CreateUser = { template: '<div>CreateUser</div>' }
 
 const ActiveUsers = { template: '<div>ActiveUsers</div>' }
 
