@@ -36,14 +36,22 @@ export default {
         }
 
 
-        new Echo({
+        let echoServer = new Echo({
             broadcaster: 'socket.io',
             host: window.location.hostname + ':6001'
-        }).private('connected_users')
-        .listen('.app.new_member', function (e) {
-            debugger
+        }).join('connected_users')
+
+        echoServer.here(function (users) {
+            console.log('Here')
+            console.log(users)
+        }).joining(function (e) {
+            console.log('Joining')
+            console.log(e)
+        }).leaving(function (e) {
+            console.log('Leaving')
             console.log(e)
         })
+        console.log(echoServer.members)
     }
 }
 

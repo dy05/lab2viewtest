@@ -36,11 +36,11 @@ class NewMember implements ShouldBroadcast
     }
 
     /**
-     * @return PrivateChannel
+     * @return PresenceChannel
      */
-    public function broadcastOn(): PrivateChannel
+    public function broadcastOn(): PresenceChannel
     {
-        return new PrivateChannel('connected_users');
+        return new PresenceChannel('connected_users');
     }
 
     public function broadcastAs()

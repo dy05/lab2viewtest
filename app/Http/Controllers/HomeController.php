@@ -2,21 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\NewMember;
 use App\Models\User;
+use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Artisan;
 
 class HomeController extends Controller
 {
     /**
+     * @var UserRepository
+     */
+    private $userRepo;
+
+    /**
      * Create a new controller instance.
      *
-     * @return void
+     * @param UserRepository $userRepo
      */
-    public function __construct()
+    public function __construct(UserRepository $userRepo)
     {
         $this->middleware('auth');
+        $this->userRepo = $userRepo;
     }
 
     /**
@@ -41,14 +46,8 @@ class HomeController extends Controller
             'email' => 'required|email|unique:users',
             'phone' => 'nullable|numeric',
         ]);
-        $user = (new User($request->all()));
-//        broadcast(new NewMember($user, $request->user()));
-        broadcast(new NewMember($request->user(), $request->user()));
+
+        $user = $this->userRepo->storeUser(new User($request->all()), $request->user());
         return response()->json($user);
-        die();
-        if ($user->save()) {
-//            Artisan::call();
-            return response()->json($user);
-        }
     }
 }

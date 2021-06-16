@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\BroadcastsEvents;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -12,6 +13,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
+    use BroadcastsEvents;
     use HasFactory;
     use HasApiTokens;
     use Notifiable;
@@ -62,5 +64,13 @@ class User extends Authenticatable
         self::created(function ($user) {
             Auth::id();
         });
+    }
+
+    public function broadcastOn($event)
+    {
+        return match($event) {
+            default => [],
+            'created' => [$this],
+        };
     }
 }

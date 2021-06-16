@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Log;
+use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use hisorange\BrowserDetect\Parser as Browser;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -44,12 +46,7 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
-        $user->logs()->save(new Log([
-            'metadata' => [
-                'ip' => $request->ip(),
-                'browser' => Browser::browserName(),
-            ],
-        ]));
+        $this->saveLog($request, $user);
     }
 
     /**
@@ -60,13 +57,7 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user()->logs()->save(new Log([
-            'metadata' => [
-                'ip' => $request->ip(),
-                'browser' => Browser::browserName(),
-            ],
-            'type' => 'logout'
-        ]));
+        $this->saveLog($request, null, ['type' => 'logout']);
 
         $this->guard()->logout();
 
@@ -81,5 +72,33 @@ class LoginController extends Controller
         return $request->wantsJson()
             ? new JsonResponse([], 204)
             : redirect('/');
+    }
+
+    /**
+     * @param Request $request
+     * @param User|null $user
+     * @param array|string[] $data
+     */
+    public function saveLog(Request $request, ?User $user = null, array $data = ['type' => 'login'])
+    {
+        if (! $user) {
+            $user = $request->user();
+        }
+
+        if (! $user) {
+            return;
+        }
+
+        $user->logs()->save(new Log(
+            array_merge(
+                [
+                    'metadata' => [
+                        'ip' => $request->ip(),
+                        'browser' => Browser::browserName(),
+                    ]
+                ],
+                $data
+            )
+        ));
     }
 }
