@@ -2,8 +2,7 @@
 
 namespace App\Repositories;
 
-use App\Events\NewMember;
-use App\Jobs\SendNotification;
+use App\Events\NotifyMember;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -36,8 +35,7 @@ class UserRepository
     public function storeUser(User $user, User $authUser): User
     {
 //        if ($user->save()) {
-            broadcast(new NewMember($authUser, $authUser))->toOthers();
-        //        broadcast(new NewMember($user, $request->user()))->toOthers();
+            broadcast(new NotifyMember($authUser, $authUser));
 //        }
 
         return $user;

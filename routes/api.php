@@ -16,4 +16,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth:sanctum'], function () {
     Route::post('/user', [\App\Http\Controllers\HomeController::class, 'store']);
+    Route::post('/notify', [\App\Http\Controllers\HomeController::class, 'notify']);
 });

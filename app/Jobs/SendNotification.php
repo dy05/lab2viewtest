@@ -18,7 +18,7 @@ class SendNotification implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     private mixed $users;
-    private array|User $user;
+    private array $user;
     /**
      * @var false
      */
@@ -27,11 +27,11 @@ class SendNotification implements ShouldQueue
     /**
      * Create a new job instance.
      *
-     * @param array|User $user
+     * @param array $user
      * @param mixed|User[] $users
      * @param bool $deleting
      */
-    public function __construct(User|array $user, mixed $users, bool $deleting = false)
+    public function __construct(array $user, mixed $users, bool $deleting = false)
     {
         $this->users = $users;
         $this->user = $user;
@@ -45,15 +45,9 @@ class SendNotification implements ShouldQueue
      */
     public function handle()
     {
-        $userData = is_array($this->user) ? $this->user : $this->user->toArray();
-
-        if (! $this->deleting && $this->user instanceof User) {
-            Notification::send($this->user, new SendMessage($userData));
-        }
-
         Notification::send(
             $this->users,
-            new AlertMessage($userData, $this->deleting ? $userData['name'] . ' vient d\'etre supprime' : null)
+            new AlertMessage($this->user, $this->deleting ? $this->user['name'] . ' vient d\'etre supprime' : null)
         );
     }
 }

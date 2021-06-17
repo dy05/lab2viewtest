@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\SendNotification;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
@@ -36,7 +37,7 @@ class HomeController extends Controller
 
     public function create()
     {
-        return view('notif');
+        return view('notify');
     }
 
     public function store(Request $request)
@@ -49,5 +50,22 @@ class HomeController extends Controller
 
         $user = $this->userRepo->storeUser(new User($request->all()), $request->user());
         return response()->json($user);
+    }
+
+    public function notify(Request $request)
+    {
+        $request->validate([
+            'requiredUser' => 'required',
+            'deleting' => 'required|in:0,1',
+            'activeUsers' => 'required|string|regex:/^\d(?:,\d)*$/'
+        ]);
+
+        SendNotification::dispatch(
+            $request->get('requiredUser'),
+            UserRepository::getUsers(explode(',', $request->get('activeUsers'))),
+            (int) $request->get('deleting') === 1
+        );
+
+        return response()->json(['success' => true]);
     }
 }

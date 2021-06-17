@@ -18,5 +18,9 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
 });
 
 Broadcast::channel('connected_users', function ($user) {
-    return true;
+    return $user;
+});
+
+Broadcast::channel('notify_member', function ($user) {
+    return $user;
 });

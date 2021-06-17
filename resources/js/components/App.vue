@@ -7,7 +7,7 @@
                     <div class="card-body">
                         <ul>
                             <li><router-link to="/">Create User</router-link></li>
-                            <li><router-link to="/active">Active User</router-link></li>
+                            <li><router-link to="/active">Online Users</router-link></li>
                         </ul>
                     </div>
                 </div>
@@ -35,23 +35,32 @@ export default {
             this.$store.commit('setUser', {user})
         }
 
-
-        let echoServer = new Echo({
+        const echoHeaders = {
             broadcaster: 'socket.io',
             host: window.location.hostname + ':6001'
-        }).join('connected_users')
+        };
 
-        echoServer.here(function (users) {
+        let echoServer = new Echo(echoHeaders).join('connected_users')
+
+        echoServer.here((users) => {
             console.log('Here')
+            this.$store.commit('resetUsers', users)
             console.log(users)
-        }).joining(function (e) {
+        }).joining((user) => {
             console.log('Joining')
-            console.log(e)
-        }).leaving(function (e) {
+            console.log(user)
+            this.$store.commit('addActiveUser', {user})
+        }).leaving((user) => {
             console.log('Leaving')
-            console.log(e)
+            console.log(user)
+            this.$store.commit('removeActiveUser', user)
         })
-        console.log(echoServer.members)
+
+        new Echo(echoHeaders).private('notify_member')
+            .listen('.app.notify_member', function (e) {
+                console.log('loll')
+                console.log(e)
+            })
     }
 }
 

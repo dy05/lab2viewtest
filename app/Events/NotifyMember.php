@@ -11,21 +11,16 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class NewMember implements ShouldBroadcast
+class NotifyMember implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    /**
-     * @var User
-     */
-    public $user;
-    /**
-     * @var int|null
-     */
-    public $authUser;
+    private User $user;
+    private ?User $authUser;
 
     /**
-     * NewMember constructor.
+     * Create a new event instance.
+     *
      * @param User $user
      * @param User|null $authUser
      */
@@ -36,22 +31,24 @@ class NewMember implements ShouldBroadcast
     }
 
     /**
-     * @return PresenceChannel
+     * @return PrivateChannel
      */
-    public function broadcastOn(): PresenceChannel
+    public function broadcastOn(): PrivateChannel
     {
-        return new PresenceChannel('connected_users');
+        return new PrivateChannel('notify_member');
     }
+
 
     public function broadcastAs()
     {
-        return 'app.new_member';
+        return 'app.notify_member';
     }
 
     public function broadcastWith()
     {
         return [
-            'message' => 'Ok Ok ' . $this->authUser->name
+            'id' => $this->user->id,
+            'email' => $this->user->email,
         ];
     }
 }

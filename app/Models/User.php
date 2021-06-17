@@ -2,16 +2,14 @@
 
 namespace App\Models;
 
-use App\Jobs\DeleteAccount;
-use App\Jobs\SendNotification;
-use App\Repositories\UserRepository;
+use App\Models\Concerns\MustNotifyAfterCreated;
+use App\Models\Concerns\MustNotifyAfterDeleted;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\BroadcastsEvents;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Auth;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -19,6 +17,8 @@ class User extends Authenticatable
     use BroadcastsEvents;
     use HasFactory;
     use HasApiTokens;
+    use MustNotifyAfterCreated;
+    use MustNotifyAfterDeleted;
     use Notifiable;
 
     /**
@@ -43,6 +43,10 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $with = [
+        'logs',
+    ];
+
     /**
      * The attributes that should be cast to native types.
      *
@@ -65,20 +69,11 @@ class User extends Authenticatable
         parent::boot();
 
         self::created(function ($user) {
-            SendNotification::dispatch($user, UserRepository::getUsers([$user->id]));
-            DeleteAccount::dispatch($user)->delay(now()->addMinutes(10));
+            self::userCreated($user);
         });
 
         self::deleted(function ($user) {
-            SendNotification::dispatch($user->toArray(), UserRepository::getUsers(), true);
+            self::userDeleted($user);
         });
-    }
-
-    public function broadcastOn($event)
-    {
-        return match($event) {
-            default => [],
-            'created' => [$this],
-        };
     }
 }

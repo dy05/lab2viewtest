@@ -24,7 +24,7 @@
 
 <script>
 export default {
-    name: "CreateUser",
+    name: 'CreateUser',
     data() {
         return {
             user: {
