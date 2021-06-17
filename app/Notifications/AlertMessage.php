@@ -12,19 +12,18 @@ class AlertMessage extends Notification
 {
     use Queueable;
 
-    private User $user;
+    private array $userData;
     private ?string $message;
 
     /**
      * Create a new notification instance.
      *
-     * @param User $user
+     * @param array $userData
      * @param mixed|null $message
      */
-    public function __construct(User $user, $message = null)
+    public function __construct(array $userData, mixed $message = null)
     {
-        //
-        $this->user = $user;
+        $this->userData = $userData;
         $this->message = $message;
     }
 
@@ -49,7 +48,7 @@ class AlertMessage extends Notification
     {
         $mailMessage = new MailMessage;
         if (! $this->message) {
-            $mailMessage = $mailMessage->line('L\'utilisateur ' . $this->user->name . ' vient d\'etre cree')
+            $mailMessage = $mailMessage->line('L\'utilisateur ' . $this->userData['name'] . ' vient d\'etre cree')
                 ->line('Et va bientot etre supprimer!');
         } else if (is_array($this->message)) {
             foreach ($this->message as $message) {

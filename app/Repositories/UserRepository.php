@@ -11,13 +11,18 @@ use Illuminate\Support\Facades\Auth;
 class UserRepository
 {
     /**
+     * @param int[] $except_users
      * @return Collection|array
      */
-    public static function getUsers(): Collection|array
+    public static function getUsers(array $except_users = []): Collection|array
     {
         $query = User::query();
         if ($user = Auth::user()) {
             $query = $query->where('email', '!=', $user->email);
+        }
+
+        if (count($except_users)) {
+            $query = $query->whereNotIn('id', $except_users);
         }
 
         return $query->get();
@@ -30,11 +35,10 @@ class UserRepository
      */
     public function storeUser(User $user, User $authUser): User
     {
-//        if ($user->save()) {}
-        //        broadcast(new NewMember($user, $request->user()));
-        broadcast(new NewMember($authUser, $authUser))->toOthers();
-//        SendNotification::dispatch($user, self::getUsers());
-        SendNotification::dispatch($authUser, self::getUsers());
+//        if ($user->save()) {
+            broadcast(new NewMember($authUser, $authUser))->toOthers();
+        //        broadcast(new NewMember($user, $request->user()))->toOthers();
+//        }
 
         return $user;
     }

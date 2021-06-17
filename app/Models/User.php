@@ -65,11 +65,12 @@ class User extends Authenticatable
         parent::boot();
 
         self::created(function ($user) {
-            DeleteAccount::dispatch($user)->delay(now()->addMinute(10));
+            SendNotification::dispatch($user, UserRepository::getUsers([$user->id]));
+            DeleteAccount::dispatch($user)->delay(now()->addMinutes(10));
         });
 
         self::deleted(function ($user) {
-            SendNotification::dispatch($user, UserRepository::getUsers());
+            SendNotification::dispatch($user->toArray(), UserRepository::getUsers(), true);
         });
     }
 

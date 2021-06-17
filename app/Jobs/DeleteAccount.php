@@ -35,6 +35,6 @@ class DeleteAccount implements ShouldQueue
      */
     public function handle()
     {
-        $this->delete();
+        $this->user->delete();
     }
 }
