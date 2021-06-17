@@ -41,8 +41,7 @@ class UserRepository
             $userData = $user->toArray();
             Notification::send($user, new SendMessage($userData));
             broadcast(new NotifyMember($userData, $authUser->toArray()));
-//            DeleteAccount::dispatch($user, $authUser->toArray())->delay(now()->addMinutes(1));
-            DeleteAccount::dispatch($user, $authUser->toArray())->delay(now()->addSeconds(30));
+            DeleteAccount::dispatch($user, $authUser->toArray())->delay(now()->addMinutes(1));
         }
 
         return $user;
