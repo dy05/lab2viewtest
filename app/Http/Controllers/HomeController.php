@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Jobs\SendNotification;
 use App\Models\User;
+use App\Notifications\SendMessage;
 use App\Repositories\UserRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class HomeController extends Controller
 {
@@ -60,9 +62,14 @@ class HomeController extends Controller
             'activeUsers' => 'required|string|regex:/^\d(?:,\d)*$/'
         ]);
 
+        $exclude_users_ids = array_merge(
+            explode(',', $request->get('activeUsers')),
+            [$request->get('requiredUser')['id']]
+        );
+
         SendNotification::dispatch(
             $request->get('requiredUser'),
-            UserRepository::getUsers(explode(',', $request->get('activeUsers'))),
+            UserRepository::getUsers($exclude_users_ids),
             (int) $request->get('deleting') === 1
         );
 

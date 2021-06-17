@@ -15,19 +15,22 @@ class NotifyMember implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    private User $user;
-    private ?User $authUser;
+    private array $user;
+    private array $authUser;
+    private bool $deleting;
 
     /**
      * Create a new event instance.
      *
-     * @param User $user
-     * @param User|null $authUser
+     * @param array $user
+     * @param array $authUser
+     * @param bool $deleting
      */
-    public function __construct(User $user, User $authUser = null)
+    public function __construct(array $user, array $authUser = [], bool $deleting = false)
     {
         $this->user = $user;
         $this->authUser = $authUser;
+        $this->deleting = $deleting;
     }
 
     /**
@@ -47,8 +50,9 @@ class NotifyMember implements ShouldBroadcast
     public function broadcastWith()
     {
         return [
-            'id' => $this->user->id,
-            'email' => $this->user->email,
+            'user' => $this->user,
+            'authUser' => $this->authUser,
+            'deleting' => $this->deleting
         ];
     }
 }

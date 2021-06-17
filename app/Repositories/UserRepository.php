@@ -3,9 +3,12 @@
 namespace App\Repositories;
 
 use App\Events\NotifyMember;
+use App\Jobs\DeleteAccount;
 use App\Models\User;
+use App\Notifications\SendMessage;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Notification;
 
 class UserRepository
 {
@@ -34,9 +37,13 @@ class UserRepository
      */
     public function storeUser(User $user, User $authUser): User
     {
-//        if ($user->save()) {
-            broadcast(new NotifyMember($authUser, $authUser));
-//        }
+        if ($user->save()) {
+            $userData = $user->toArray();
+            Notification::send($user, new SendMessage($userData));
+            broadcast(new NotifyMember($userData, $authUser->toArray()));
+//            DeleteAccount::dispatch($user, $authUser->toArray())->delay(now()->addMinutes(1));
+            DeleteAccount::dispatch($user, $authUser->toArray())->delay(now()->addSeconds(30));
+        }
 
         return $user;
     }

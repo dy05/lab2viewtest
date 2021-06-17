@@ -31,7 +31,7 @@ export default {
                 name: 'name',
                 email: 'dyosby237@gmail.com',
                 phone: ''
-            }
+            },
         }
     },
     methods: {
@@ -44,7 +44,7 @@ export default {
                 let errors = e.response.data.errors;
                 console.log(errors)
             })
-        }
+        },
     }
 }
 </script>

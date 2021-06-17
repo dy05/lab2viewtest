@@ -2,8 +2,7 @@
 
 namespace App\Models;
 
-use App\Models\Concerns\MustNotifyAfterCreated;
-use App\Models\Concerns\MustNotifyAfterDeleted;
+use App\Events\NotifyMember;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\BroadcastsEvents;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,8 +16,6 @@ class User extends Authenticatable
     use BroadcastsEvents;
     use HasFactory;
     use HasApiTokens;
-    use MustNotifyAfterCreated;
-    use MustNotifyAfterDeleted;
     use Notifiable;
 
     /**
@@ -62,18 +59,5 @@ class User extends Authenticatable
     public function logs(): HasMany
     {
         return $this->hasMany(Log::class, 'user_id');
-    }
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        self::created(function ($user) {
-            self::userCreated($user);
-        });
-
-        self::deleted(function ($user) {
-            self::userDeleted($user);
-        });
     }
 }

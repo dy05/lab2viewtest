@@ -9,13 +9,16 @@
         "prod": "npm run production",
         "production": "mix --production"
     },
+    "dependencies": {
+        "laravel-echo": "^1.10.0",
+        "socket.io-client": "^2.3.0"
+    },
     "devDependencies": {
         "@vue/compiler-sfc": "^3.1.1",
         "axios": "^0.21",
         "bootstrap": "^4.6.0",
         "favico.js": "^0.3.10",
         "jquery": "^3.6",
-        "laravel-echo": "^1.10.0",
         "laravel-mix": "^6.0.6",
         "lodash": "^4.17.19",
         "popper.js": "^1.16.1",
@@ -24,7 +27,6 @@
         "resolve-url-loader": "^3.1.2",
         "sass": "^1.32.11",
         "sass-loader": "^11.0.1",
-        "socket.io-client": "^2.3.0",
         "vue": "^3.1.1",
         "vue-loader": "^16.2.0",
         "vue-router": "^4.0.8",

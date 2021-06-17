@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import Echo from "laravel-echo";
+import {mapGetters} from "vuex";
 
 export default {
     name: "App",
@@ -35,12 +35,7 @@ export default {
             this.$store.commit('setUser', {user})
         }
 
-        const echoHeaders = {
-            broadcaster: 'socket.io',
-            host: window.location.hostname + ':6001'
-        };
-
-        let echoServer = new Echo(echoHeaders).join('connected_users')
+        let echoServer = Echo.join('connected_users')
 
         echoServer.here((users) => {
             console.log('Here')
@@ -56,11 +51,39 @@ export default {
             this.$store.commit('removeActiveUser', user)
         })
 
-        new Echo(echoHeaders).private('notify_member')
-            .listen('.app.notify_member', function (e) {
-                console.log('loll')
-                console.log(e)
+        Echo.channel('laravel_database_private-notify_member')
+            .listen('.app.notify_member', (data) => {
+                console.log(data)
+                if (data.authUser.id !== this.authUser.id) {
+                    alert(data.user.email + (data.deleting === false ? ' vient d\'etre ajoute' : ' vient d\'etre supprime'));
+                } else {
+                    this.notifyUsers(data.user, data.deleting === true ? 1 : 0)
+                }
             })
+
+    },
+    computed: {
+        ...mapGetters({
+            usersIdsList: 'getUsersIds',
+            authUser: 'authUser'
+        })
+    },
+    methods: {
+        notifyUsers(requiredUser, deleting = 0) {
+            axios.post('/api/notify', {
+                requiredUser: requiredUser,
+                activeUsers: `${this.usersIdsList}`,
+                deleting: deleting
+            }).then((response) => {
+                // alert('Ajouter avec success')
+                // this.$router.push('/active')
+                console.log(response.data)
+            }).catch((e) => {
+                let errors = e.response.data.errors;
+                console.log(errors)
+            })
+        },
+
     }
 }
 
