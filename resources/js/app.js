@@ -35,7 +35,6 @@ const store = createStore({
     getters: {
         authUser: (state) => state.authUser,
         getUsers: (state) => state.activeUsers,
-        getUsersIds: (state) => state.activeUsers.map((user) => user.id)
     },
     mutations: {
         setUser (state, {user}) {
@@ -45,7 +44,7 @@ const store = createStore({
             state.activeUsers = users.filter((user) => user.id !== state.authUser.id)
         },
         addActiveUser (state, {user}) {
-            if (! this.getters.getUsersIds.includes(user.id)) {
+            if (! (state.activeUsers.map((user) => user.id)).includes(user.id)) {
                 state.activeUsers.push(user)
             }
         },

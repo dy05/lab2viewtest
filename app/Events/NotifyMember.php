@@ -2,7 +2,6 @@
 
 namespace App\Events;
 
-use App\Models\User;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -16,20 +15,20 @@ class NotifyMember implements ShouldBroadcast
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     private array $user;
-    private array $authUser;
+    private string $notification_uuid;
     private bool $deleting;
 
     /**
      * Create a new event instance.
      *
      * @param array $user
-     * @param array $authUser
+     * @param string $notification_uuid
      * @param bool $deleting
      */
-    public function __construct(array $user, array $authUser = [], bool $deleting = false)
+    public function __construct(array $user, string $notification_uuid, bool $deleting = false)
     {
         $this->user = $user;
-        $this->authUser = $authUser;
+        $this->notification_uuid = $notification_uuid;
         $this->deleting = $deleting;
     }
 
@@ -51,7 +50,7 @@ class NotifyMember implements ShouldBroadcast
     {
         return [
             'user' => $this->user,
-            'authUser' => $this->authUser,
+            'uuid' => $this->notification_uuid,
             'deleting' => $this->deleting
         ];
     }

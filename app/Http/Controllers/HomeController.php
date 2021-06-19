@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Jobs\SendNotification;
 use App\Models\User;
-use App\Notifications\SendMessage;
 use App\Repositories\UserRepository;
+use Exception;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Notification;
 
 class HomeController extends Controller
 {
     /**
      * @var UserRepository
      */
-    private $userRepo;
+    private UserRepository $userRepo;
 
     /**
      * Create a new controller instance.
@@ -27,22 +27,22 @@ class HomeController extends Controller
         $this->userRepo = $userRepo;
     }
 
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Contracts\Support\Renderable
-     */
-    public function index()
+    public function index(): View
     {
         return view('home');
     }
 
-    public function create()
+    public function create(): View
     {
         return view('notify');
     }
 
-    public function store(Request $request)
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function store(Request $request): JsonResponse
     {
         $request->validate([
             'name' => 'required',
@@ -54,25 +54,19 @@ class HomeController extends Controller
         return response()->json($user);
     }
 
-    public function notify(Request $request)
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function notify(Request $request): JsonResponse
     {
         $request->validate([
-            'requiredUser' => 'required',
-            'deleting' => 'required|in:0,1',
-            'activeUsers' => 'required|string|regex:/^\d(?:,\d)*$/'
+            'uuid' => 'required'
         ]);
 
-        $exclude_users_ids = array_merge(
-            explode(',', $request->get('activeUsers')),
-            [$request->get('requiredUser')['id']]
-        );
+        $viewed = UserRepository::addViewedUser($request->get('uuid'), $request->user()->id);
 
-        SendNotification::dispatch(
-            $request->get('requiredUser'),
-            UserRepository::getUsers($exclude_users_ids),
-            (int) $request->get('deleting') === 1
-        );
-
-        return response()->json(['success' => true]);
+        return response()->json(['success' => $viewed]);
     }
 }
