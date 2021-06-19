@@ -17917,19 +17917,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @babel/runtime/regenerator */ "./node_modules/@babel/runtime/regenerator/index.js");
 /* harmony import */ var _babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_babel_runtime_regenerator__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var vuex__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! vuex */ "./node_modules/vuex/dist/vuex.esm-bundler.js");
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) { symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); } keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   name: "App",
@@ -17971,13 +17963,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 _this.$store.commit('removeActiveUser', user);
               });
               Echo.channel('laravel_database_private-notify_member').listen('.app.notify_member', function (data) {
-                console.log(data);
+                console.log(data.user.email + (data.deleting === false ? ' vient d\'etre ajoute' : ' vient d\'etre supprime'));
 
-                if (data.authUser.id !== _this.authUser.id) {
-                  alert(data.user.email + (data.deleting === false ? ' vient d\'etre ajoute' : ' vient d\'etre supprime'));
-                } else {
-                  _this.notifyUsers(data.user, data.deleting === true ? 1 : 0);
-                }
+                _this.notifySee(data.uuid);
               });
 
             case 5:
@@ -17988,17 +17976,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }, _callee);
     }))();
   },
-  computed: _objectSpread({}, (0,vuex__WEBPACK_IMPORTED_MODULE_1__.mapGetters)({
-    usersIdsList: 'getUsersIds',
-    authUser: 'authUser'
-  })),
   methods: {
-    notifyUsers: function notifyUsers(requiredUser) {
-      var deleting = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+    notifySee: function notifySee(uuid) {
       axios.post('/api/notify', {
-        requiredUser: requiredUser,
-        activeUsers: "".concat(this.usersIdsList),
-        deleting: deleting
+        uuid: uuid
       }).then(function (response) {
         // alert('Ajouter avec success')
         // this.$router.push('/active')
@@ -18352,11 +18333,6 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_5__.createStore)({
     },
     getUsers: function getUsers(state) {
       return state.activeUsers;
-    },
-    getUsersIds: function getUsersIds(state) {
-      return state.activeUsers.map(function (user) {
-        return user.id;
-      });
     }
   },
   mutations: {
@@ -18372,7 +18348,9 @@ var store = (0,vuex__WEBPACK_IMPORTED_MODULE_5__.createStore)({
     addActiveUser: function addActiveUser(state, _ref2) {
       var user = _ref2.user;
 
-      if (!this.getters.getUsersIds.includes(user.id)) {
+      if (!state.activeUsers.map(function (user) {
+        return user.id;
+      }).includes(user.id)) {
         state.activeUsers.push(user);
       }
     },
